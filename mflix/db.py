@@ -261,8 +261,29 @@ def get_movie(id):
         # Implement the required pipeline.
         pipeline = [
             {
-                "$match": {
-                    "_id": ObjectId(id)
+                '$match': {
+                    '_id': ObjectId(id)
+                }
+            }, {
+                '$lookup': {
+                    'from': 'comments',
+                    'let': {
+                        'id': '$_id'
+                    },
+                    'pipeline': [
+                        {
+                            '$match': {
+                                '$expr': {
+                                    '$eq': [
+                                        '$movie_id', '$$id'
+                                    ]
+                                }
+                            }
+                        }, {
+                            "$sort": {"date": -1}
+                        }
+                    ],
+                    'as': 'comments'
                 }
             }
         ]
@@ -507,8 +528,8 @@ def update_prefs(email, prefs):
         # TODO: User preferences
         # Use the data in "prefs" to update the user's preferences.
         response = db.users.update_one(
-            { "some_field": "some_value" },
-            { "$set": { "some_other_field": "some_other_value" } }
+            { "email": email },
+            { "$set": { "preferences": prefs } }
         )
         if response.matched_count == 0:
             return {'error': 'no user found'}
