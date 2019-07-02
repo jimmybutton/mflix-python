@@ -36,8 +36,12 @@ def test_add_comment(client):
     assert isinstance(result, InsertOneResult)
     assert result.acknowledged is True
     assert result.inserted_id is not None
+    #print("Inserted ID: {}".format(result.inserted_id))
+    #print("Type: {}".format(type(result.inserted_id)))
+    #print("Raw result: {}".format(dir(result)))
 
     comments = get_movie(movie_id).get('comments')
+    #print(comments)
     assert comments[0].get('_id') == result.inserted_id
     assert comments[0].get('text') == comment['text']
     comment['id'] = result.inserted_id
